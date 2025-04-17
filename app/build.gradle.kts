@@ -127,8 +127,8 @@ android {
 
 dependencies {
     // Compose
-    implementation("androidx.compose.runtime:runtime")
-    implementation("androidx.activity:activity-compose2")
+    val activity_version = "1.10.1"
+    implementation("androidx.activity:activity-ktx:$activity_version")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.foundation:foundation-layout")
     implementation("androidx.compose.runtime:runtime-livedata")
@@ -151,7 +151,7 @@ dependencies {
     // Android X libraries
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("com.google.android.material:material:1.10.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.webkit:webkit:1.8.0")
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation("androidx.preference:preference:1.2.1")
@@ -267,7 +267,8 @@ dependencies {
 
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
     implementation("com.github.tachiyomiorg:DirectionalViewPager:1.0.0")
-    implementation("com.github.florent37:viewtooltip:1.2.2")
+    // Use this instead: https://medium.com/@MrAndroid/tooltips-in-jetpack-compose-d7667cb5ae0d
+//    implementation("com.github.florent37:viewtooltip:1.2.2")
     implementation("com.getkeepsafe.taptargetview:taptargetview:1.13.3")
 
     // Conductor
