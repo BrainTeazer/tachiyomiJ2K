@@ -3,7 +3,7 @@ package eu.kanade.tachiyomi.widget.preference
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
-import br.com.simplepass.loadingbutton.animatedDrawables.ProgressType
+// import br.com.simplepass.loadingbutton.animatedDrawables.ProgressType
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.track.TrackManager
 import eu.kanade.tachiyomi.data.track.TrackService
@@ -32,10 +32,10 @@ class TrackLoginDialog(@StringRes usernameLabelRes: Int? = null, bundle: Bundle?
 
     override fun checkLogin() {
         v?.apply {
-            binding.login.apply {
-                progressType = ProgressType.INDETERMINATE
-                startAnimation()
-            }
+//            binding.login.apply {
+//                progressType = ProgressType.INDETERMINATE
+//                startAnimation()
+//            }
             if (binding.username.text.isNullOrBlank() || binding.password.text.isNullOrBlank()) {
                 errorResult()
                 context.toast(R.string.username_must_not_be_blank)
@@ -67,9 +67,9 @@ class TrackLoginDialog(@StringRes usernameLabelRes: Int? = null, bundle: Bundle?
         v?.apply {
             dialog?.setCancelable(true)
             dialog?.setCanceledOnTouchOutside(true)
-            binding.login.revertAnimation {
-                binding.login.text = activity!!.getText(R.string.unknown_error)
-            }
+//            binding.login.revertAnimation {
+//                binding.login.text = activity!!.getText(R.string.unknown_error)
+//            }
         }
     }
 
