@@ -31,7 +31,7 @@
         <item name="colorBackgroundFloating">?colorSurface</item>
 
         <item name="colorTertiary">@color/download_badge</item>
-        <item name="colorOnTertiary">@color/black</item>
+<!--        <item name="colorOnTertiary">@color/black</item>-->
 
         <item name="readerBackground">@color/primaryVariantTachiyomi</item>
         <item name="android:listSelector">?attr/colorSecondary</item>
