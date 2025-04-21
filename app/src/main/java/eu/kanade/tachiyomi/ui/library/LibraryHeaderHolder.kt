@@ -1,9 +1,6 @@
 package eu.kanade.tachiyomi.ui.library
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.graphics.Color
-import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.DrawableRes
@@ -15,7 +12,7 @@ import androidx.core.view.marginTop
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import com.github.florent37.viewtooltip.ViewTooltip
+// import com.github.florent37.viewtooltip.ViewTooltip
 import eu.davidea.flexibleadapter.SelectableAdapter
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.database.models.Category
@@ -126,14 +123,14 @@ class LibraryHeaderHolder(val view: View, val adapter: LibraryCategoryAdapter) :
         adapter.libraryListener?.toggleCategoryVisibility(flexibleAdapterPosition)
         val tutorial = Injekt.get<PreferencesHelper>().shownLongPressCategoryTutorial()
         if (!tutorial.get()) {
-            ViewTooltip.on(itemView.context as? Activity, binding.categoryTitle).autoHide(true, 5000L)
-                .align(ViewTooltip.ALIGN.START).position(ViewTooltip.Position.TOP)
-                .text(R.string.long_press_category)
-                .color(itemView.context.getResourceColor(R.attr.colorSecondary))
-                .textSize(TypedValue.COMPLEX_UNIT_SP, 15f).textColor(Color.WHITE)
-                .withShadow(false).corner(30).arrowWidth(15).arrowHeight(15).distanceWithView(0)
-                .show()
-            tutorial.set(true)
+//            ViewTooltip.on(itemView.context as? Activity, binding.categoryTitle).autoHide(true, 5000L)
+//                .align(ViewTooltip.ALIGN.START).position(ViewTooltip.Position.TOP)
+//                .text(R.string.long_press_category)
+//                .color(itemView.context.getResourceColor(R.attr.colorSecondary))
+//                .textSize(TypedValue.COMPLEX_UNIT_SP, 15f).textColor(Color.WHITE)
+//                .withShadow(false).corner(30).arrowWidth(15).arrowHeight(15).distanceWithView(0)
+//                .show()
+//            tutorial.set(true)
         }
     }
 

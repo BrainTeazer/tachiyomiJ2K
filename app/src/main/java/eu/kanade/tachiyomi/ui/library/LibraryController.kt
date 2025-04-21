@@ -11,7 +11,6 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
@@ -49,7 +48,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import com.fredporciuncula.flow.preferences.Preference
-import com.github.florent37.viewtooltip.ViewTooltip
+// import com.github.florent37.viewtooltip.ViewTooltip
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import eu.davidea.flexibleadapter.FlexibleAdapter
@@ -226,7 +225,7 @@ open class LibraryController(
             }
         }
 
-    private var filterTooltip: ViewTooltip? = null
+//    private var filterTooltip: ViewTooltip? = null
     private var isAnimatingHopper: Boolean? = null
     private var animatorSet: AnimatorSet? = null
     var hasMovedHopper = preferences.shownHopperSwipeTutorial().get()
@@ -491,20 +490,20 @@ open class LibraryController(
 
     private fun showFilterTip() {
         if (preferences.shownFilterTutorial().get() || !hasExpanded) return
-        if (filterTooltip != null) return
+//        if (filterTooltip != null) return
         val activityBinding = activityBinding ?: return
         val activity = activity ?: return
         val icon = (activityBinding.bottomNav ?: activityBinding.sideNav)?.getItemView(R.id.nav_library) ?: return
-        filterTooltip =
-            ViewTooltip.on(activity, icon).autoHide(false, 0L).align(ViewTooltip.ALIGN.START)
-                .position(ViewTooltip.Position.TOP)
-                .text(R.string.tap_library_to_show_filters)
-                .textColor(activity.getResourceColor(R.attr.colorOnSecondary))
-                .color(activity.getResourceColor(R.attr.colorSecondary))
-                .textSize(TypedValue.COMPLEX_UNIT_SP, 15f).withShadow(false)
-                .corner(30).arrowWidth(15).arrowHeight(15).distanceWithView(0)
+//        filterTooltip =
+//            ViewTooltip.on(activity, icon).autoHide(false, 0L).align(ViewTooltip.ALIGN.START)
+//                .position(ViewTooltip.Position.TOP)
+//                .text(R.string.tap_library_to_show_filters)
+//                .textColor(activity.getResourceColor(R.attr.colorOnSecondary))
+//                .color(activity.getResourceColor(R.attr.colorSecondary))
+//                .textSize(TypedValue.COMPLEX_UNIT_SP, 15f).withShadow(false)
+//                .corner(30).arrowWidth(15).arrowHeight(15).distanceWithView(0)
 
-        filterTooltip?.show()
+//        filterTooltip?.show()
     }
 
     private fun openRandomManga() {
@@ -555,13 +554,13 @@ open class LibraryController(
     }
 
     internal fun closeTip() {
-        if (filterTooltip != null) {
-            filterTooltip?.close()
-            filterTooltip = null
-            if (!isSubClass) {
-                preferences.shownFilterTutorial().set(true)
-            }
-        }
+//        if (filterTooltip != null) {
+//            filterTooltip?.close()
+//            filterTooltip = null
+//            if (!isSubClass) {
+//                preferences.shownFilterTutorial().set(true)
+//            }
+//        }
     }
 
     override fun createBinding(inflater: LayoutInflater) = LibraryControllerBinding.inflate(inflater)
