@@ -1,38 +1,63 @@
 package eu.kanade.tachiyomi.ui.more.stats
 
-import android.content.res.ColorStateList
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.recyclerview.widget.RecyclerView
-import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.databinding.ListChartLegendBinding
+
+@Composable
+fun ListChartLegend(item: StatsController.StatusDistributionItem) {
+    Row {
+        Icon(imageVector = Icons.Filled.Circle, contentDescription = "", tint = Color(item.color))
+        Text(
+            item.status,
+            modifier = Modifier.padding(4.dp, 0.dp, 0.dp),
+        )
+        Text(
+            item.amount.toString(),
+            modifier = Modifier.padding(12.dp, 0.dp, 0.dp),
+        )
+    }
+}
+
+@Composable
+@Preview
+fun ListChartLegendPreview() {
+    ListChartLegend(StatsController.StatusDistributionItem("Publishing Finished", 12, -1))
+}
 
 class StatsLegendAdapter(
     private val list: List<StatsController.StatusDistributionItem>,
 ) : RecyclerView.Adapter<StatsLegendAdapter.StatsLegendHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatsLegendHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_chart_legend, parent, false)
-        return StatsLegendHolder(view)
+        return StatsLegendHolder(ComposeView(parent.context))
     }
 
     override fun onBindViewHolder(holder: StatsLegendHolder, position: Int) {
-        val item = list[position]
-        holder.legendColorIcon.imageTintList = ColorStateList.valueOf(item.color)
-        holder.legendDescriptionText.text = item.status
-        holder.legendValueText.text = item.amount.toString()
+        holder.bind(list[position])
     }
 
     override fun getItemCount(): Int {
         return list.size
     }
 
-    class StatsLegendHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val binding = ListChartLegendBinding.bind(view)
-
-        val legendColorIcon = binding.legendColorIcon
-        val legendDescriptionText = binding.legendDescriptionText
-        val legendValueText = binding.legendValueText
+    class StatsLegendHolder(private val composeView: ComposeView) :
+        RecyclerView.ViewHolder(composeView) {
+        fun bind(item: StatsController.StatusDistributionItem) {
+            composeView.setContent {
+                ListChartLegend(item)
+            }
+        }
     }
 }

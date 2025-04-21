@@ -139,6 +139,8 @@ dependencies {
     implementation("com.google.android.material:compose-theme-adapter-3:1.1.1")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.activity:activity-compose")
 
     implementation("com.google.accompanist:accompanist-webview:0.30.1")
     implementation("androidx.glance:glance-appwidget:1.0.0")
