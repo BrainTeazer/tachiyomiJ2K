@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lens
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -29,6 +30,7 @@ fun IconButtonWithTooltip(
     tooltipText: String,
     icon: ImageVector,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     // Get local density from composable
@@ -52,6 +54,8 @@ fun IconButtonWithTooltip(
         modifier = modifier,
     ) {
         IconButton(
+            colors = IconButtonDefaults.iconButtonColors().copy(contentColor = colorResource(R.color.colorOnSurface)),
+            enabled = enabled,
             onClick = { onClick() },
             modifier = Modifier.onGloballyPositioned { layoutCoordinates ->
                 buttonHeight = with(localDensity) { layoutCoordinates.size.height.toDp() }

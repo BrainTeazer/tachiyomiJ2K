@@ -25,9 +25,8 @@ import uy.kohesive.injekt.injectLazy
 @Composable
 fun ReaderChapterItem(
     chapter: Chapter,
-    manga: Manga,
+    manga: Manga?,
     isCurrent: Boolean,
-    test: Boolean,
 ) {
     val localContext = LocalContext.current
     val preferences: PreferencesHelper by injectLazy()
@@ -37,24 +36,24 @@ fun ReaderChapterItem(
     ChapterUtil.relativeDate(chapter)?.let { statuses.add(it) }
     chapter.scanlator?.takeIf { it.isNotBlank() }?.let { statuses.add(chapter.scanlator ?: "") }
 
-    Row {
-        Column {
-            Text(
-                text = chapter.preferredChapterName(localContext, manga, preferences),
-                fontStyle = if (isCurrent) FontStyle.Italic else null,
-                fontWeight = if (isCurrent) FontWeight.Bold else null,
-                color = chapterColor,
-            )
+    manga?.let {
+        Row {
+            Column {
+                Text(
+                    text = chapter.preferredChapterName(localContext, manga, preferences),
+                    fontStyle = if (isCurrent) FontStyle.Italic else null,
+                    fontWeight = if (isCurrent) FontWeight.Bold else null,
+                    color = chapterColor,
+                )
 
-            Text(
-                text = statuses.joinToString(" • "),
-                fontStyle = if (isCurrent) FontStyle.Italic else null,
-                fontWeight = if (isCurrent) FontWeight.Bold else null,
-                color = chapterColor,
-            )
+                Text(
+                    text = statuses.joinToString(" • "),
+                    fontStyle = if (isCurrent) FontStyle.Italic else null,
+                    fontWeight = if (isCurrent) FontWeight.Bold else null,
+                    color = chapterColor,
+                )
+            }
         }
-
-//        IconButton()
     }
 }
 

@@ -314,9 +314,11 @@ class ReaderActivity : BaseActivity<ReaderActivityBinding>() {
                 onNextChapter = { loadAdjacentChapter(true) },
                 onValueChanged = { value ->
                     if (viewer != null) {
-                        moveToPageIndex(value.toInt())
+                        // Convert value to index
+                        moveToPageIndex(value.toInt() - 1)
                     }
                 },
+                foregroundColor = colorResource(R.color.colorOnSurface),
                 modifier = Modifier
                     .clip(RoundedCornerShape(percent = 50))
                     .background(colorResource(R.color.surface_alpha)),

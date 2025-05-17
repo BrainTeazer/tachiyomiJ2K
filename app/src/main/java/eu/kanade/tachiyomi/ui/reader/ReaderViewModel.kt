@@ -334,6 +334,19 @@ class ReaderViewModel(
         return chapterItems
     }
 
+    suspend fun getChaptersCompose(): List<Chapter> {
+        val manga = manga ?: return emptyList()
+        return withContext(Dispatchers.IO) {
+            val chapterSort = ChapterSort(manga, chapterFilter, preferences)
+            val dbChapters = db.getChapters(manga).executeAsBlocking()
+            chapterSort.getChaptersSorted(
+                dbChapters,
+                filterForReader = true,
+                currentChapter = getCurrentChapter()?.chapter,
+            )
+        }
+    }
+
     fun canLoadUrl(uri: Uri): Boolean {
         val host = uri.host ?: return false
         val delegatedSource = sourceManager.getDelegatedSource(host) ?: return false

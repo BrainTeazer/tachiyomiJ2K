@@ -24,9 +24,12 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,6 +42,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -46,9 +50,11 @@ import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.mikepenz.fastadapter.listeners.ClickEventHook
 import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.databinding.ReaderChaptersSheetBinding
 import eu.kanade.tachiyomi.ui.common.IconButtonWithTooltip
 import eu.kanade.tachiyomi.ui.reader.ReaderActivity
+import eu.kanade.tachiyomi.ui.reader.ReaderUiState
 import eu.kanade.tachiyomi.ui.reader.ReaderViewModel
 import eu.kanade.tachiyomi.util.system.dpToPx
 import eu.kanade.tachiyomi.util.system.getResourceColor
@@ -72,6 +78,8 @@ data class ReaderChapterSheetIcon(
 
 @Composable
 fun ReaderChapterSheet(
+    viewModel: ReaderViewModel,
+    readerUiState: ReaderUiState,
     chapterSheetIcons: List<ReaderChapterSheetIcon>,
     modifier: Modifier = Modifier,
 ) {
@@ -80,6 +88,8 @@ fun ReaderChapterSheet(
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     var lazyRowHeight by remember { mutableStateOf(0.dp) }
+    val coroutineScope = rememberCoroutineScope()
+    var chapterItems = emptyList<Chapter>()
 
     BottomSheetScaffold(
         sheetPeekHeight = BottomSheetDefaults.SheetPeekHeight + lazyRowHeight,
@@ -99,7 +109,16 @@ fun ReaderChapterSheet(
                     }
                 }
 
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        chapterItems = viewModel.getChaptersCompose()
+                    }
+                }
+
                 LazyColumn {
+                    items(chapterItems) { chapter ->
+                        ReaderChapterItem(chapter, readerUiState.manga, chapter.id == readerUiState.viewerChapters?.currChapter?.chapter?.id)
+                    }
                 }
             }
         },
@@ -112,7 +131,10 @@ fun ReaderChapterSheet(
 @Composable
 @Preview
 fun ReaderChapterSheetPreview() {
+    val viewModel: ReaderViewModel = viewModel()
     ReaderChapterSheet(
+        viewModel = viewModel,
+        readerUiState = viewModel.state.collectAsState().value,
         chapterSheetIcons = listOf(
             ReaderChapterSheetIcon(
                 stringResource(R.string.view_chapters),
