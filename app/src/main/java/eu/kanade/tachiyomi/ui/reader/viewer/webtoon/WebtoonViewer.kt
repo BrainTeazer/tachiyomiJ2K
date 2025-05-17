@@ -111,7 +111,7 @@ class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = fals
             }
         }
         recycler.longTapListener = f@{ event ->
-            if (activity.menuVisible || config.longTapEnabled) {
+            if (activity.viewModel.menuVisible || config.longTapEnabled) {
                 val child = recycler.findChildViewUnder(event.x, event.y)
                 if (child != null) {
                     val position = recycler.getChildAdapterPosition(child)
@@ -281,14 +281,14 @@ class WebtoonViewer(val activity: ReaderActivity, val hasMargins: Boolean = fals
 
         when (event.keyCode) {
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                if (!config.volumeKeysEnabled || activity.menuVisible) {
+                if (!config.volumeKeysEnabled || activity.viewModel.menuVisible) {
                     return false
                 } else if (isUp) {
                     if (!config.volumeKeysInverted) moveToNext() else moveToPrevious()
                 }
             }
             KeyEvent.KEYCODE_VOLUME_UP -> {
-                if (!config.volumeKeysEnabled || activity.menuVisible) {
+                if (!config.volumeKeysEnabled || activity.viewModel.menuVisible) {
                     return false
                 } else if (isUp) {
                     if (!config.volumeKeysInverted) moveToPrevious() else moveToNext()

@@ -7,6 +7,34 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.ReadMore
+import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.PhonelinkSetup
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.ScreenRotation
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -19,6 +47,7 @@ import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.mikepenz.fastadapter.listeners.ClickEventHook
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.databinding.ReaderChaptersSheetBinding
+import eu.kanade.tachiyomi.ui.common.IconButtonWithTooltip
 import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.ui.reader.ReaderViewModel
 import eu.kanade.tachiyomi.util.system.dpToPx
@@ -34,6 +63,92 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+
+data class ReaderChapterSheetIcon(
+    val tooltipText: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit,
+)
+
+@Composable
+fun ReaderChapterSheet(
+    chapterSheetIcons: List<ReaderChapterSheetIcon>,
+    modifier: Modifier = Modifier,
+) {
+    // Get local density from composable
+    val localDensity = LocalDensity.current
+
+    val scaffoldState = rememberBottomSheetScaffoldState()
+    var lazyRowHeight by remember { mutableStateOf(0.dp) }
+
+    BottomSheetScaffold(
+        sheetPeekHeight = BottomSheetDefaults.SheetPeekHeight + lazyRowHeight,
+        sheetContent = {
+            Column {
+                LazyRow(
+                    modifier = Modifier.onGloballyPositioned { layoutCoordinates ->
+                        lazyRowHeight = with(localDensity) { layoutCoordinates.size.height.toDp() }
+                    },
+                ) {
+                    items(chapterSheetIcons) { item ->
+                        IconButtonWithTooltip(
+                            tooltipText = item.tooltipText,
+                            icon = item.icon,
+                            onClick = item.onClick,
+                        )
+                    }
+                }
+
+                LazyColumn {
+                }
+            }
+        },
+        scaffoldState = scaffoldState,
+        modifier = modifier,
+    ) {
+    }
+}
+
+@Composable
+@Preview
+fun ReaderChapterSheetPreview() {
+    ReaderChapterSheet(
+        chapterSheetIcons = listOf(
+            ReaderChapterSheetIcon(
+                stringResource(R.string.view_chapters),
+                icon = Icons.Default.FormatListNumbered,
+            ) {},
+            ReaderChapterSheetIcon(
+                stringResource(R.string.open_in_webview),
+                icon = Icons.Default.Public,
+            ) {},
+            ReaderChapterSheetIcon(
+                stringResource(R.string.reading_mode),
+                icon = Icons.Default.PhonelinkSetup,
+            ) {},
+            ReaderChapterSheetIcon(
+                stringResource(R.string.rotation),
+                icon = Icons.Default.ScreenRotation,
+            ) {},
+            ReaderChapterSheetIcon(
+                stringResource(R.string.crop_borders),
+                icon = Icons.Default.Fullscreen,
+            ) {},
+            ReaderChapterSheetIcon(
+                stringResource(R.string.double_pages),
+                icon = Icons.AutoMirrored.Filled.MenuBook,
+            ) {},
+            ReaderChapterSheetIcon(
+                stringResource(R.string.shift_one_page_over),
+                icon = Icons.AutoMirrored.Filled.ReadMore,
+            ) {},
+            ReaderChapterSheetIcon(
+                stringResource(R.string.display_options),
+                icon = Icons.Default.Tune,
+            ) {},
+        ),
+    )
+}
 
 class ReaderChapterSheet @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs) {
@@ -59,7 +174,8 @@ class ReaderChapterSheet @JvmOverloads constructor(context: Context, attrs: Attr
 
         val primary = ColorUtils.setAlphaComponent(fullPrimary, 200)
 
-        val hasLightNav = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 || activity.isInNightMode()
+        val hasLightNav =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 || activity.isInNightMode()
         val navPrimary = ColorUtils.setAlphaComponent(
             if (hasLightNav) {
                 fullPrimary
@@ -99,7 +215,14 @@ class ReaderChapterSheet @JvmOverloads constructor(context: Context, attrs: Attr
                     binding.chapterRecycler.alpha = trueProgress
                     if (activity.sheetManageNavColor && progress > 0f) {
                         activity.window.navigationBarColor =
-                            lerpColor(ColorUtils.setAlphaComponent(navPrimary, if (hasLightNav) 0 else 179), navPrimary, trueProgress)
+                            lerpColor(
+                                ColorUtils.setAlphaComponent(
+                                    navPrimary,
+                                    if (hasLightNav) 0 else 179,
+                                ),
+                                navPrimary,
+                                trueProgress,
+                            )
                     }
                     if (lastScale != 1f && scaleY != 1f) {
                         val scaleProgress = ((1f - progress) * (1f - lastScale)) + lastScale
@@ -190,7 +313,8 @@ class ReaderChapterSheet @JvmOverloads constructor(context: Context, attrs: Attr
                     activity.isScrollingThroughPagesOrChapters = true
 
                     loadingPos = position
-                    val itemView = (binding.chapterRecycler.findViewHolderForAdapterPosition(position) as? ReaderChapterItem.ViewHolder)?.binding
+                    val itemView =
+                        (binding.chapterRecycler.findViewHolderForAdapterPosition(position) as? ReaderChapterItem.ViewHolder)?.binding
                     itemView?.bookmarkImage?.isVisible = false
                     itemView?.progress?.isVisible = true
                     activity.lifecycleScope.launch {
@@ -252,7 +376,8 @@ class ReaderChapterSheet @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     fun resetChapter() {
-        val itemView = (binding.chapterRecycler.findViewHolderForAdapterPosition(loadingPos) as? ReaderChapterItem.ViewHolder)?.binding
+        val itemView =
+            (binding.chapterRecycler.findViewHolderForAdapterPosition(loadingPos) as? ReaderChapterItem.ViewHolder)?.binding
         itemView?.bookmarkImage?.isVisible = true
         itemView?.progress?.isVisible = false
     }

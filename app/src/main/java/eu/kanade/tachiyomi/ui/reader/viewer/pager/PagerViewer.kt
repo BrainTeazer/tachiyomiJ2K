@@ -126,7 +126,7 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
             }
         }
         pager.longTapListener = f@{
-            if (activity.menuVisible || config.longTapEnabled) {
+            if (activity.viewModel.menuVisible || config.longTapEnabled) {
                 val item = adapter.joinedItems.getOrNull(pager.currentItem)
                 val firstPage = item?.first as? ReaderPage
                 val secondPage = item?.second as? ReaderPage
@@ -453,14 +453,14 @@ abstract class PagerViewer(val activity: ReaderActivity) : BaseViewer {
 
         when (event.keyCode) {
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                if (!config.volumeKeysEnabled || activity.menuVisible) {
+                if (!config.volumeKeysEnabled || activity.viewModel.menuVisible) {
                     return false
                 } else if (isUp) {
                     if (!config.volumeKeysInverted) moveDown() else moveUp()
                 }
             }
             KeyEvent.KEYCODE_VOLUME_UP -> {
-                if (!config.volumeKeysEnabled || activity.menuVisible) {
+                if (!config.volumeKeysEnabled || activity.viewModel.menuVisible) {
                     return false
                 } else if (isUp) {
                     if (!config.volumeKeysInverted) moveUp() else moveDown()

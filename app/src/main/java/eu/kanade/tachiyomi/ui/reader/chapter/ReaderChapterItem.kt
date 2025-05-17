@@ -2,6 +2,14 @@ package eu.kanade.tachiyomi.ui.reader.chapter
 
 import android.graphics.Typeface
 import android.view.View
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.core.graphics.drawable.DrawableCompat
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
@@ -13,6 +21,42 @@ import eu.kanade.tachiyomi.databinding.ReaderChapterItemBinding
 import eu.kanade.tachiyomi.util.chapter.ChapterUtil
 import eu.kanade.tachiyomi.util.chapter.ChapterUtil.Companion.preferredChapterName
 import uy.kohesive.injekt.injectLazy
+
+@Composable
+fun ReaderChapterItem(
+    chapter: Chapter,
+    manga: Manga,
+    isCurrent: Boolean,
+    test: Boolean,
+) {
+    val localContext = LocalContext.current
+    val preferences: PreferencesHelper by injectLazy()
+    val chapterColor = Color(ChapterUtil.chapterColor(localContext, chapter))
+
+    val statuses = mutableListOf<String>()
+    ChapterUtil.relativeDate(chapter)?.let { statuses.add(it) }
+    chapter.scanlator?.takeIf { it.isNotBlank() }?.let { statuses.add(chapter.scanlator ?: "") }
+
+    Row {
+        Column {
+            Text(
+                text = chapter.preferredChapterName(localContext, manga, preferences),
+                fontStyle = if (isCurrent) FontStyle.Italic else null,
+                fontWeight = if (isCurrent) FontWeight.Bold else null,
+                color = chapterColor,
+            )
+
+            Text(
+                text = statuses.joinToString(" • "),
+                fontStyle = if (isCurrent) FontStyle.Italic else null,
+                fontWeight = if (isCurrent) FontWeight.Bold else null,
+                color = chapterColor,
+            )
+        }
+
+//        IconButton()
+    }
+}
 
 class ReaderChapterItem(val chapter: Chapter, val manga: Manga, val isCurrent: Boolean) :
     AbstractItem<ReaderChapterItem.ViewHolder>(),

@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import androidx.annotation.ColorInt
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -88,8 +90,60 @@ class ReaderViewModel(
     private val chapterFilter: ChapterFilter = Injekt.get(),
 ) : ViewModel() {
 
-    private val mutableState = MutableStateFlow(State())
+    private val mutableState = MutableStateFlow(ReaderUiState())
     val state = mutableState.asStateFlow()
+
+    var currentChapter: String
+        get() = state.value.currentPage
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(currentPage = value) }
+        }
+
+    var totalPages: UInt
+        get() = state.value.totalPages
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(totalPages = value) }
+        }
+
+    var menuVisible: Boolean
+        get() = state.value.menuVisible
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(menuVisible = value) }
+        }
+
+    var isRTL: Boolean
+        get() = state.value.isRTL
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(isRTL = value) }
+        }
+
+    var isLoadingPreviousChapter: Boolean
+        get() = state.value.isLoadingPreviousChapter
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(isLoadingPreviousChapter = value) }
+        }
+
+    var isLoadingNextChapter: Boolean
+        get() = state.value.isLoadingNextChapter
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(isLoadingNextChapter = value) }
+        }
+
+    var isNextChapterAvailable: Boolean
+        get() = state.value.isLoadingPreviousChapter
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(isNextChapterAvailable = value) }
+        }
+
+    var isPreviousChapterAvailable: Boolean
+        get() = state.value.isPreviousChapterAvailable
+        set(value) {
+            mutableState.update { currentState -> currentState.copy(isPreviousChapterAvailable = value) }
+        }
+
+//    var isScrollingThroughPagesOrChapters: Boolean
+//        get() = state.value.isScrollingThroughPagesOrChapters
+//        set(value) { mutableState.update { currentState -> currentState.copy(isScrollingThroughPagesOrChapters = value) } }
 
     private val downloadProvider = DownloadProvider(preferences.context)
 
@@ -174,6 +228,14 @@ class ReaderViewModel(
             .launchIn(viewModelScope)
     }
 
+    fun setChapterLoading(rightButton: Boolean, value: Boolean = false) {
+        if ((rightButton && this.isRTL) || (!rightButton && !this.isRTL)) {
+            this.isLoadingPreviousChapter = value
+        } else {
+            this.isLoadingNextChapter = value
+        }
+    }
+
     /**
      * Called when the user pressed the back button and is going to leave the reader. Used to
      * trigger deletion of the downloaded chapters.
@@ -233,7 +295,8 @@ class ReaderViewModel(
 
                     val source = sourceManager.getOrStub(manga.source)
                     val context = Injekt.get<Application>()
-                    loader = ChapterLoader(context, downloadManager, downloadProvider, manga, source)
+                    loader =
+                        ChapterLoader(context, downloadManager, downloadProvider, manga, source)
 
                     loadChapter(loader!!, chapterList.first { chapterId == it.chapter.id })
                     Result.success(true)
@@ -407,7 +470,8 @@ class ReaderViewModel(
         val loader = loader ?: return -1
 
         Timber.d("Loading adjacent ${chapter.chapter.url}")
-        var lastPage: Int? = if (chapter.chapter.pages_left <= 1) 0 else chapter.chapter.last_page_read
+        var lastPage: Int? =
+            if (chapter.chapter.pages_left <= 1) 0 else chapter.chapter.last_page_read
         mutableState.update { it.copy(isLoadingAdjacentChapter = true) }
         try {
             withIOContext {
@@ -617,7 +681,9 @@ class ReaderViewModel(
         if (!preferences.incognitoMode().get()) {
             val readAt = Date().time
             val sessionReadDuration = chapterReadStartTime?.let { readAt - it } ?: 0
-            val oldTimeRead = db.getHistoryByChapterUrl(readerChapter.chapter.url).executeAsBlocking()?.time_read ?: 0
+            val oldTimeRead =
+                db.getHistoryByChapterUrl(readerChapter.chapter.url).executeAsBlocking()?.time_read
+                    ?: 0
             val history = History.create(readerChapter.chapter).apply {
                 last_read = readAt
                 time_read = sessionReadDuration + oldTimeRead
@@ -649,7 +715,11 @@ class ReaderViewModel(
         val manga = manga ?: return null
         val source = getSource() ?: return null
         val chapter = mainChapter ?: getCurrentChapter()?.chapter ?: return null
-        val chapterUrl = try { source.getChapterUrl(chapter) } catch (_: Exception) { null }
+        val chapterUrl = try {
+            source.getChapterUrl(chapter)
+        } catch (_: Exception) {
+            null
+        }
         return chapterUrl.takeIf { !it.isNullOrBlank() } ?: source.getChapterUrl(manga, chapter)
     }
 
@@ -754,7 +824,13 @@ class ReaderViewModel(
 
         // Build destination file.
         val filename = DiskUtil.buildValidFilename(
-            "${manga.title} - ${chapter.preferredChapterName(context, manga, preferences)}".take(225),
+            "${manga.title} - ${
+            chapter.preferredChapterName(
+                context,
+                manga,
+                preferences,
+            )
+            }".take(225),
         ) + " - ${page.number}.${type.extension}"
 
         val destFile = File(directory, filename)
@@ -769,7 +845,14 @@ class ReaderViewModel(
     /**
      * Saves the image of [page1] and [page2] in the given [directory] and returns the file location.
      */
-    private fun saveImages(page1: ReaderPage, page2: ReaderPage, isLTR: Boolean, @ColorInt bg: Int, directory: File, manga: Manga): File {
+    private fun saveImages(
+        page1: ReaderPage,
+        page2: ReaderPage,
+        isLTR: Boolean,
+        @ColorInt bg: Int,
+        directory: File,
+        manga: Manga,
+    ): File {
         val stream1 = page1.stream!!
         ImageUtil.findImageType(stream1) ?: throw Exception("Not an image")
         val stream2 = page2.stream!!
@@ -788,7 +871,13 @@ class ReaderViewModel(
 
         // Build destination file.
         val filename = DiskUtil.buildValidFilename(
-            "${manga.title} - ${chapter.preferredChapterName(context, manga, preferences)}".take(225),
+            "${manga.title} - ${
+            chapter.preferredChapterName(
+                context,
+                manga,
+                preferences,
+            )
+            }".take(225),
         ) + " - ${page1.number}-${page2.number}.jpg"
 
         val destFile = File(directory, filename)
@@ -837,7 +926,12 @@ class ReaderViewModel(
         }
     }
 
-    fun saveImages(firstPage: ReaderPage, secondPage: ReaderPage, isLTR: Boolean, @ColorInt bg: Int) {
+    fun saveImages(
+        firstPage: ReaderPage,
+        secondPage: ReaderPage,
+        isLTR: Boolean,
+        @ColorInt bg: Int,
+    ) {
         scope.launch {
             if (firstPage.status != Page.State.READY) return@launch
             if (secondPage.status != Page.State.READY) return@launch
@@ -889,7 +983,12 @@ class ReaderViewModel(
         }
     }
 
-    fun shareImages(firstPage: ReaderPage, secondPage: ReaderPage, isLTR: Boolean, @ColorInt bg: Int) {
+    fun shareImages(
+        firstPage: ReaderPage,
+        secondPage: ReaderPage,
+        isLTR: Boolean,
+        @ColorInt bg: Int,
+    ) {
         scope.launch {
             if (firstPage.status != Page.State.READY) return@launch
             if (secondPage.status != Page.State.READY) return@launch
@@ -996,13 +1095,6 @@ class ReaderViewModel(
             .subscribe()
     }
 
-    data class State(
-        val manga: Manga? = null,
-        val viewerChapters: ViewerChapters? = null,
-        val isLoadingAdjacentChapter: Boolean = false,
-        val lastPage: Int? = null,
-    )
-
     sealed class Event {
         object ReloadViewerChapters : Event()
         object ReloadMangaAndChapters : Event()
@@ -1010,7 +1102,12 @@ class ReaderViewModel(
         data class SetCoverResult(val result: SetAsCoverResult) : Event()
 
         data class SavedImage(val result: SaveImageResult) : Event()
-        data class ShareImage(val file: File, val page: ReaderPage, val extraPage: ReaderPage? = null) : Event()
+        data class ShareImage(
+            val file: File,
+            val page: ReaderPage,
+            val extraPage: ReaderPage? = null,
+        ) : Event()
+
         data class ShareTrackingError(val errors: List<Pair<TrackService, String?>>) : Event()
     }
 }
